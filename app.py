@@ -23,12 +23,20 @@ st.markdown(
 )
 ARTIFACTS = ROOT / "artifacts"
 required = ["model.joblib", "metadata.json", "test_predictions.csv", "dataset.csv", "shap_values.npz", "background.csv"]
-if any(not (ARTIFACTS / name).exists() for name in required):
+missing = [name for name in required if not (ARTIFACTS / name).exists()]
+if missing:
+    st.error(f"Missing files: {', '.join(missing)}")
+    st.write("Artifacts folder:", str(ARTIFACTS))
+    st.write(
+        "Files present:",
+        sorted(p.name for p in ARTIFACTS.iterdir())
+        if ARTIFACTS.exists() else "Folder does not exist"
+    )
     st.info("Train the pipeline to generate model predictions, evaluation results, and SHAP explanations.")
     st.code("python -m src.pipeline\nstreamlit run app.py", language="bash")
     st.markdown("The pipeline downloads adjusted prices, builds five-session benchmark-relative labels, and evaluates on the latest held-out events. No sample scores are shown before training.")
     st.stop()
-
+    
 @st.cache_resource
 def load_model(version):
     return joblib.load(ARTIFACTS / "model.joblib")
