@@ -82,7 +82,19 @@ app.py               Streamlit UI
 artifacts/           local model, metrics, data, predictions, SHAP values
 ```
 
-Artifacts include `model.joblib`, all candidate models, `metadata.json`, `dataset.csv`, `test_predictions.csv`, training background features, and `shap_values.npz`. Metadata records feature schema, thresholds, split dates, dependency versions, failures, source hash, and training time. Artifacts and price caches are ignored by Git. Load only locally generated/trusted joblib artifacts.
+Artifacts include `model.joblib`, all candidate models, `metadata.json`, `dataset.csv`, `test_predictions.csv`, training background features, and `shap_values.npz`. Metadata records feature schema, thresholds, split dates, dependency versions, failures, source hash, and training time. The dashboard's serving artifacts are allowed in Git; extra candidate models, run history, and price caches remain ignored. Load only locally generated/trusted joblib artifacts.
+
+## Deploying the dashboard
+
+Train locally, then commit the serving artifacts together with the application:
+
+```bash
+git add .gitignore artifacts/
+git commit -m "Include trained artifacts for dashboard deployment"
+git push
+```
+
+The deployment must install `requirements.txt` and run `app.py`. If the serving artifacts are missing, the dashboard displays setup instructions and stops. It does not train automatically on startup. Keep all serving files from the same training run together, and use dependency versions compatible with those recorded in `artifacts/metadata.json`.
 
 ## Verification
 

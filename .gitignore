@@ -4,7 +4,14 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 data/prices/
-artifacts/
+artifacts/*
+!artifacts/model.joblib
+!artifacts/metadata.json
+!artifacts/background.csv
+!artifacts/dataset.csv
+!artifacts/test_predictions.csv
+!artifacts/shap_values.npz
+!artifacts/drift.csv
 data/inference_prices/
 data/legacy_prices/
 artifacts_*/
