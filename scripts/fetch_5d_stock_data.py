@@ -1,53 +1,26 @@
-import yfinance as yf
+"""Legacy helper with explicit trading-session timing and adjusted prices."""
+from pathlib import Path
+import sys
 import pandas as pd
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.data import ROOT, load_prices
+
+
+def changes(ticker, start_dt, horizon=5):
+    date = pd.Timestamp(start_dt)
+    prices = load_prices(ticker, (date-pd.Timedelta(days=14)).strftime("%Y-%m-%d"),
+                         (date+pd.Timedelta(days=max(30, horizon*2))).strftime("%Y-%m-%d"),
+                         ROOT / "data/legacy_prices", refresh=True)
+    index = prices.index.searchsorted(date, side="right")
+    if index == 0 or index+horizon-1 >= len(prices):
+        raise ValueError("Full return horizon unavailable.")
+    before, after = prices.Close.iloc[index-1], prices.Close.iloc[index+horizon-1]
+    return float(after-before), float((after/before-1)*100)
+
 
 def price_change_5d(ticker, start_dt):
-    start_dt = pd.to_datetime(start_dt)
-    end_dt = start_dt + pd.Timedelta(days=5)
+    return changes(ticker, start_dt)[0]
 
-    stock = yf.download(
-        ticker,
-        start=start_dt - pd.Timedelta(days=2),
-        end=end_dt + pd.Timedelta(days=2)
-    )
-    if stock.empty:
-        raise ValueError("No stock data returned for given period.")
-
-    stock.reset_index(inplace=True)
-
-    #find closest trading day to start_dt and end_dt
-    start_idx = (stock["Date"] - start_dt).abs().idxmin()
-    end_idx = (stock["Date"] - end_dt).abs().idxmin()
-
-    #returns a series if there are duplicates
-    start_value = float(stock.loc[start_idx, "Close"])
-    end_value = float(stock.loc[end_idx, "Close"])
-
-    return round(end_value - start_value, 2)
 
 def percent_change_5d(ticker, start_dt):
-    start_dt = pd.to_datetime(start_dt)
-    end_dt = start_dt + pd.Timedelta(days=5)
-
-    stock = yf.download(
-        ticker,
-        start=start_dt - pd.Timedelta(days=2),
-        end=end_dt + pd.Timedelta(days=2)
-    )
-    if stock.empty:
-        raise ValueError("No stock data returned for given period.")
-
-    stock.reset_index(inplace=True)
-
-    #find closest trading day to start_dt and end_dt
-    start_idx = (stock["Date"] - start_dt).abs().idxmin()
-    end_idx = (stock["Date"] - end_dt).abs().idxmin()
-
-    #returns a series if there are duplicates
-    start_value = float(stock.loc[start_idx, "Close"])
-    end_value = float(stock.loc[end_idx, "Close"])
-
-    return round((end_value - start_value)/start_value*100, 2)
-
-
-
+    return changes(ticker, start_dt)[1]

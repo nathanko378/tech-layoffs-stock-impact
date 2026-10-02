@@ -1,6 +1,11 @@
-streamlit
-pandas
-numpy
-altair
-yfinance
-requests
+streamlit>=1.40,<2
+pandas>=2.2,<3
+numpy>=1.26,<3
+altair>=5,<7
+yfinance>=0.2.54,<2
+requests>=2.32,<3
+scikit-learn>=1.6,<2
+xgboost>=2.1,<4
+shap>=0.48,<1
+matplotlib>=3.9,<4
+joblib>=1.4,<2

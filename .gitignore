@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+data/prices/
+artifacts/
+data/inference_prices/
+data/legacy_prices/
+artifacts_*/
